@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.example.com/students" xmlns="http://www.example.com/students">
+	<xsd:element name="students">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="student" type="Student" minOccurs="1"
+					maxOccurs="unbounded" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:complexType name="Student">
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string" />
+			<xsd:element name="telephone" type="xsd:integer" />
+			<xsd:element name="address" type="Address" />
+		</xsd:sequence>
+		<xsd:attribute name="login" type="Login" use="required" />
+
+		<xsd:attribute name="faculty" use="optional">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="famcs"></xsd:enumeration>
+					<xsd:enumeration value="mmf"></xsd:enumeration>
+					<xsd:enumeration value="rfe"></xsd:enumeration>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:simpleType name="Login">
+		<xsd:restriction base="xsd:ID">
+			<xsd:pattern value="[a-zA-Z]{3}[a-zA-Z0-9_]*" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="Address">
+		<xsd:sequence>
+			<xsd:element name="country" type="xsd:string" />
+			<xsd:element name="city" type="xsd:string" />
+			<xsd:element name="street" type="xsd:string" />
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>
+ 
