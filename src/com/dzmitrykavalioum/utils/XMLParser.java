@@ -7,10 +7,10 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
-public class XMLParser {
+public class XMLParser implements Closeable{
     //final String FILE_PATH = "notes.xml";
     final String FILE_PATH = "students2.xml";
-
+    BufferedReader bufferedReader = null;
     Node node;
 
 
@@ -19,25 +19,29 @@ public class XMLParser {
 
        StringBuffer stringBuffer =  readXMLData(FILE_PATH);
        String formatData[]=  formattingData(stringBuffer);
-       LinkedList<Node> nodes =  createElements(formatData);
-  //     printNodes(nodes);
+       LinkedList<Node> nodes = createElements(formatData);
+
     }
 
     public StringBuffer readXMLData(String filePath) throws IOException {
-        StringBuffer rawData = new StringBuffer("");
+        StringBuffer sbRawData = new StringBuffer("");
+        File file = new File(filePath);
+        FileReader reader = new FileReader(file);
         try {
-            File file = new File(filePath);
-            FileReader reader = new FileReader(file);
-            BufferedReader buffer = new BufferedReader(reader);
-            String line = buffer.readLine();
+            bufferedReader = new BufferedReader(reader);
+            String line = bufferedReader.readLine();
             while (line != null) {
-                rawData.append(line);
-                line = buffer.readLine();
+                sbRawData.append(line);
+                line = bufferedReader.readLine();
             }
         } catch (IOException e) {
             System.out.println(e);
         }
-        return rawData;
+        finally {
+            bufferedReader.close();
+        }
+
+        return sbRawData;
     }
 
     public String[] formattingData(StringBuffer data) {
@@ -52,22 +56,23 @@ public class XMLParser {
     }
 
     public LinkedList<Node> createElements(String [] formatData) {
-        LinkedList<Node> listOfNodes = new LinkedList<>();
-        String openTagRegex= "<\\p{Alnum}+[ \\p{Alnum}+=\"{1}\\p{Alnum}+\"{1}]*[>|/>]+";
-        String closeTagRegex = "</\\p{Alpha}+>";
-        Pattern patternCloseTag = Pattern.compile(closeTagRegex);
-        Pattern pattern = Pattern.compile(openTagRegex);
+        LinkedList<Node> listOfNodes = new LinkedList<Node>();
+        String openTag= "<\\p{Alnum}+[ \\p{Alnum}+=\"{1}\\p{Alnum}+\"{1}]*[>|/>]+";
+        String closeTag = "</\\p{Alpha}+>";
+        Pattern patternOpenTag = Pattern.compile(openTag);
+        Pattern patternCloseTag = Pattern.compile(closeTag);
+
         for (int i = 0; i < formatData.length; ++i) {
             if ("".equals(formatData[i])) {
                 continue;
             }
-            if(pattern.matcher(formatData[i]).matches() && node == null) {
+            if(patternOpenTag.matcher(formatData[i]).matches() && node == null) {
                 node = new NodeBuilder(formatData[i]).build();
                 listOfNodes.addLast(node);
             } else if (listOfNodes.size() >= 1) {
-                if (pattern.matcher(formatData[i]).matches()) {
+                if (patternOpenTag.matcher(formatData[i]).matches()) {
                     Node current = new NodeBuilder(formatData[i]).build();
-                    listOfNodes.getLast().setNode(current);
+                    listOfNodes.getLast().addNode(current);
                     listOfNodes.addLast(current);
                 } else if (patternCloseTag.matcher(formatData[i]).matches()) {
                     listOfNodes.removeLast();
@@ -85,5 +90,10 @@ public class XMLParser {
         for (Node node:nodes){
             System.out.println(node.toString());
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        bufferedReader.close();
     }
 }

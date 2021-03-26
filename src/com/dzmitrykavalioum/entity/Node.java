@@ -1,9 +1,11 @@
 package com.dzmitrykavalioum.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class Node {
+public class Node implements Serializable {
     private String tag;
     private List<Attribute> attributes = new ArrayList<Attribute>();
     private List<Node> nodes = new ArrayList<Node>();
@@ -37,9 +39,11 @@ public class Node {
         return nodes;
     }
 
-    public void setNode(Node node) {
+    public void addNode(Node node) {
         this.nodes.add(node);
     }
+
+
 
     public String getContent() {
         return content;
@@ -53,8 +57,8 @@ public class Node {
     public String toString() {
         StringBuffer nodeString = null;
         nodeString.append(getTag());
-        for (Attribute data: attributes) {
-            nodeString.append("\t"+data.getKey()+"="+data.getValue()+"\n");
+        for (Attribute attribute: attributes) {
+            nodeString.append("\t"+attribute.getKey()+"="+attribute.getValue()+"\n");
 
         }
         nodeString.append("\t");
@@ -63,5 +67,18 @@ public class Node {
         }
         nodeString.append("\n");
         return nodeString.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return Objects.equals(tag, node.tag) && Objects.equals(attributes, node.attributes) && Objects.equals(nodes, node.nodes) && Objects.equals(content, node.content);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tag, attributes, nodes, content);
     }
 }
