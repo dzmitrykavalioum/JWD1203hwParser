@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.example.com/students students2.xsd ">
 	
 	<student login="aaaaaa">
-		<name>name</name>
+		<name>Dimon</name>
 		<telephone>0</telephone>
 		<address>
 			<country>country</country>
@@ -13,7 +13,7 @@
 		</address>
 	</student>
 	<student login="bbbbbb">
-		<name>name</name>
+		<name>Kova</name>
 		<telephone>0</telephone>
 		<address>
 			<country>country</country>

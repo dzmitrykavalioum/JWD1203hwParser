@@ -7,19 +7,19 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
-public class XMLParser implements Closeable{
+public class XMLParser implements Closeable {
     //final String FILE_PATH = "notes.xml";
     final String FILE_PATH = "students2.xml";
     BufferedReader bufferedReader = null;
     Node node;
 
 
-
     public XMLParser() throws IOException {
 
-       StringBuffer stringBuffer =  readXMLData(FILE_PATH);
-       String formatData[]=  formattingData(stringBuffer);
-       LinkedList<Node> nodes = createElements(formatData);
+        StringBuffer stringBuffer = readXMLData(FILE_PATH);
+        String formatData[] = formattingData(stringBuffer);
+        LinkedList<Node> nodes = createNodes(formatData);
+        printNodes(nodes);
 
     }
 
@@ -36,8 +36,7 @@ public class XMLParser implements Closeable{
             }
         } catch (IOException e) {
             System.out.println(e);
-        }
-        finally {
+        } finally {
             bufferedReader.close();
         }
 
@@ -45,9 +44,11 @@ public class XMLParser implements Closeable{
     }
 
     public String[] formattingData(StringBuffer data) {
-        String [] formatData = data.toString()
+        String[] formatData = data.toString()
+                .replaceAll(">\\s+", ">")
                 .replace(">", ">\n")
                 .replace("</", "\n</")
+                .replaceAll("\n+", "\n")
                 .split("\n");
         for (int i = 0; i < formatData.length; ++i) {
             formatData[i] = formatData[i].trim();
@@ -55,9 +56,9 @@ public class XMLParser implements Closeable{
         return formatData;
     }
 
-    public LinkedList<Node> createElements(String [] formatData) {
+    public LinkedList<Node> createNodes(String[] formatData) {
         LinkedList<Node> listOfNodes = new LinkedList<Node>();
-        String openTag= "<\\p{Alnum}+[ \\p{Alnum}+=\"{1}\\p{Alnum}+\"{1}]*[>|/>]+";
+        String openTag = "<[a-zA-Z]+\\s+[[a-zA-Z]+=\\\"{1}[a-z_]+\\\"{1}]*[>|/>]+";
         String closeTag = "</\\p{Alpha}+>";
         Pattern patternOpenTag = Pattern.compile(openTag);
         Pattern patternCloseTag = Pattern.compile(closeTag);
@@ -66,7 +67,7 @@ public class XMLParser implements Closeable{
             if ("".equals(formatData[i])) {
                 continue;
             }
-            if(patternOpenTag.matcher(formatData[i]).matches() && node == null) {
+            if (patternOpenTag.matcher(formatData[i]).matches() && node == null) {
                 node = new NodeBuilder(formatData[i]).build();
                 listOfNodes.addLast(node);
             } else if (listOfNodes.size() >= 1) {
@@ -78,16 +79,16 @@ public class XMLParser implements Closeable{
                     listOfNodes.removeLast();
                 } else {
                     listOfNodes.getLast().setContent(formatData[i]);
-
                 }
             }
         }
+
         return listOfNodes;
 
     }
 
-    public void printNodes(LinkedList<Node> nodes){
-        for (Node node:nodes){
+    public void printNodes(LinkedList<Node> nodes) {
+        for (Node node : nodes) {
             System.out.println(node.toString());
         }
     }
