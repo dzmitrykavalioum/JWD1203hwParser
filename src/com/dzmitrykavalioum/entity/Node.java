@@ -53,20 +53,10 @@ public class Node implements Serializable {
         this.content = content;
     }
 
+
     @Override
     public String toString() {
-        StringBuffer nodeString = null;
-        nodeString.append(getTag());
-        for (Attribute attribute: attributes) {
-            nodeString.append("\t"+attribute.getKey()+"="+attribute.getValue()+"\n");
-
-        }
-        nodeString.append("\t");
-        for (Node node:nodes) {
-            nodeString.append(node.toString()+"\n");
-        }
-        nodeString.append("\n");
-        return nodeString.toString();
+        return super.toString();
     }
 
     @Override

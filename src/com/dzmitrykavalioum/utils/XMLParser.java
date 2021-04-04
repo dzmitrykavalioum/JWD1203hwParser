@@ -2,14 +2,15 @@ package com.dzmitrykavalioum.utils;
 
 import com.dzmitrykavalioum.entity.Node;
 import com.dzmitrykavalioum.entity.NodeBuilder;
+import com.dzmitrykavalioum.exception.ParserException;
 
 import java.io.*;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 public class XMLParser implements Closeable {
-    //final String FILE_PATH = "notes.xml";
-    final String FILE_PATH = "students2.xml";
+    final String FILE_PATH = "notes.xml";
+    //final String FILE_PATH = "students2.xml";
     BufferedReader bufferedReader = null;
     Node node;
 
@@ -35,6 +36,7 @@ public class XMLParser implements Closeable {
                 line = bufferedReader.readLine();
             }
         } catch (IOException e) {
+
             System.out.println(e);
         } finally {
             bufferedReader.close();
@@ -57,31 +59,45 @@ public class XMLParser implements Closeable {
     }
 
     public LinkedList<Node> createNodes(String[] formatData) {
+        int counterOpenTag = 0;
+        int counterCloseTag = 0;
+        int counerLines = 0;
         LinkedList<Node> listOfNodes = new LinkedList<Node>();
-        String openTag = "<[a-zA-Z]+\\s+[[a-zA-Z]+=\\\"{1}[a-z_]+\\\"{1}]*[>|/>]+";
+        String openTag = "<[a-zA-Z]+\\s*[[a-zA-Z]*=*\\\"{1}[a-z_]*\\\"{1}]*[>|/>]+";
+        //String openTag = "\\<[a-z,-]+(\\s[a-z]+\\=\"[a-zA-Z0-9]+\")+\\>";
+        //String openTag = "\\<[a-z,-]+\\>";
         String closeTag = "</\\p{Alpha}+>";
         Pattern patternOpenTag = Pattern.compile(openTag);
         Pattern patternCloseTag = Pattern.compile(closeTag);
 
         for (int i = 0; i < formatData.length; ++i) {
+            counerLines++;
+            System.out.println(formatData[i]);
             if ("".equals(formatData[i])) {
                 continue;
             }
+
             if (patternOpenTag.matcher(formatData[i]).matches() && node == null) {
+                counterOpenTag++;
+
                 node = new NodeBuilder(formatData[i]).build();
                 listOfNodes.addLast(node);
             } else if (listOfNodes.size() >= 1) {
                 if (patternOpenTag.matcher(formatData[i]).matches()) {
+                    counterOpenTag++;
                     Node current = new NodeBuilder(formatData[i]).build();
                     listOfNodes.getLast().addNode(current);
                     listOfNodes.addLast(current);
                 } else if (patternCloseTag.matcher(formatData[i]).matches()) {
-                    listOfNodes.removeLast();
+                    counterCloseTag++;
+                    //listOfNodes.removeLast();
                 } else {
                     listOfNodes.getLast().setContent(formatData[i]);
                 }
             }
         }
+        System.out.println("open tags = " + counterOpenTag + "\t close tags = " + counterCloseTag + "\t lines = "
+                + counerLines);
 
         return listOfNodes;
 

@@ -11,6 +11,13 @@
         <body>Позвони мне завтра!</body>
     </note>
 
+    <note id="2">
+        <to>George</to>
+        <from>Peppa</from>
+        <heading>Header</heading>
+        <body>Call me later</body>
+    </note>
+
 </tc:notes>
 
 
