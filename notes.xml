@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<tc:notes
-        xmlns:tc="http://www.epam.tc.com/note"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.epam.tc.com/note notes.xsd">
+<notes>
 
     <note id="1">
         <to>Вася</to>
@@ -18,6 +15,6 @@
         <body>Call  me later</body>
     </note>
 
-</tc:notes>
+</notes>
 
 
