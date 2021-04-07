@@ -10,19 +10,14 @@ import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 public class XMLParser implements Closeable, Parser {
-    private final String openTag = "<[a-zA-Z:]+[\\s*[a-zA-Z:]*={1}\\\"{1}[a-z_0-9]*\\\"{1}]*>{1}";
-    private final  String closeTag = "</[a-zA-Z:]+>";
-    private String OT = "open tag";
-    private String CT = "close tag";
-    private String RN = "\t root = null";
-    private String RNN = "\t root != null";
-    private String CONTENT = "CONTENT";
+    private final String openTag = "<[a-zA-Z:]+(\\s*[a-zA-Z:]*=\\\"[-a-zA-Z:\\s_0-9/\\.]*\\\")*>";
+    private final String closeTag = "</[a-zA-Z:]+>";
+    //private final String comment = "<!--(.*?)-->";
 
     private String filePath;
-//    final String FILE_PATH = "notes.xml";
-    //final String FILE_PATH = "students2.xml";
     BufferedReader bufferedReader = null;
     Node node;
+    String COMMENT = "COMMENT";
 
     public XMLParser() {
     }
@@ -56,6 +51,8 @@ public class XMLParser implements Closeable, Parser {
     public String[] formattingData(StringBuffer data) {
         String[] formatData = data.toString()
                 .replaceAll(">\\s+", ">")
+                .replaceAll("\\t", " ")
+                .replaceAll("<!--(.*?)-->","")
                 .replace(">", ">\n")
                 .replace("</", "\n</")
                 .replaceAll("\n+", "\n")
@@ -71,40 +68,41 @@ public class XMLParser implements Closeable, Parser {
         int counterCloseTag = 0;
         int counterLines = 0;
         LinkedList<Node> listOfNodes = new LinkedList<Node>();
-
         Pattern patternOpenTag = Pattern.compile(openTag);
         Pattern patternCloseTag = Pattern.compile(closeTag);
+//        Pattern patternComment = Pattern.compile(COMMENT);
 
         for (int i = 0; i < formatData.length; ++i) {
             counterLines++;
-            System.out.println(formatData[i]);
             if ("".equals(formatData[i])) {
                 continue;
             }
+            //TODO parsing comments in xml
+//            if (patternComment.matcher(formatData[i]).matches()){
+//                System.out.println(COMMENT);
+//                continue;
+//            }
 
             if (patternOpenTag.matcher(formatData[i]).matches() && node == null) {
                 counterOpenTag++;
-
                 node = new NodeBuilder(formatData[i]).build();
                 listOfNodes.addLast(node);
-                System.out.println(OT+RN+"\n");
             } else if (listOfNodes.size() >= 1) {
                 if (patternOpenTag.matcher(formatData[i]).matches()) {
                     counterOpenTag++;
                     Node current = new NodeBuilder(formatData[i]).build();
                     listOfNodes.getLast().addNode(current);
                     listOfNodes.addLast(current);
-                    System.out.println(OT+"\n");
                 } else if (patternCloseTag.matcher(formatData[i]).matches()) {
                     counterCloseTag++;
                     listOfNodes.removeLast();
-                    System.out.println(CT+"\n");
                 } else {
                     listOfNodes.getLast().setContent(formatData[i]);
-                    System.out.println(CONTENT+ "\n");
                 }
             }
         }
+
+        //TODO delete after debugging
         System.out.println("open tags = " + counterOpenTag + "\t close tags = " + counterCloseTag + "\t lines = "
                 + counterLines);
 
@@ -128,7 +126,6 @@ public class XMLParser implements Closeable, Parser {
         StringBuffer stringBuffer = readXMLData(filePath);
         String formatData[] = formattingData(stringBuffer);
         Node root = createNodes(formatData);
-        System.out.println("Good job");
         return root;
     }
 }
